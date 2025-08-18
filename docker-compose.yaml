@@ -1,0 +1,9 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: oraculo
+    ports:
+      - '8334:8334'
+    restart: unless-stopped
