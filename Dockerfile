@@ -1,6 +1,9 @@
 # Imagem base com Python
 FROM python:3.11-slim
 
+RUN apt-get update && \
+    apt-get install -y git build-essential libfreetype6-dev
+
 # Define diretório de trabalho
 WORKDIR /app
 

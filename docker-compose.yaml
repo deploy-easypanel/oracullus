@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: oraculo
+    container_name: oracullus
     ports:
       - '8334:8334'
     restart: unless-stopped
