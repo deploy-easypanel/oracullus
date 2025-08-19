@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from decouple import Csv, config
-from dj_database_url import parse as db_url
+from dj_database_url import config as db_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -72,10 +72,9 @@ WSGI_APPLICATION = "setup.wsgi.application"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": db_url(
+        default=config("DATABASE_URL"),
+    )
 }
 
 
