@@ -1,7 +1,17 @@
+import uuid
+
 from django.db import models
 
 
-class Chat(models.Model):
+class ChatSession(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Message(models.Model):
+    session = models.ForeignKey(
+        ChatSession, on_delete=models.CASCADE, related_name="messages"
+    )
     question = models.CharField(
         verbose_name="Pergunta", max_length=255, null=False, blank=False
     )
