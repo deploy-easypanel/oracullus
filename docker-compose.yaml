@@ -24,7 +24,16 @@ services:
       - '8334'
     volumes:
       - .:/app
-    command: gunicorn setup.wsgi:application --bind 0.0.0.0:8334 --workers 3
+    entrypoint: ['/entrypoint.sh']
+    command:
+      [
+        'gunicorn',
+        'setup.wsgi:application',
+        '--bind',
+        '0.0.0.0:8334',
+        '--workers',
+        '3',
+      ]
 
   nginx:
     image: nginx:latest
