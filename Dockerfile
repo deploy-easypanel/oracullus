@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        git build-essential libfreetype6-dev libpq-dev curl netcat && \
+        git build-essential libfreetype6-dev libpq-dev curl netcat-openbsd && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
