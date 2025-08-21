@@ -24,16 +24,8 @@ services:
       - '8334'
     volumes:
       - .:/app
-    entrypoint: ['/app/entrypoint.sh']
-    command:
-      [
-        'gunicorn',
-        'setup.wsgi:application',
-        '--bind',
-        '0.0.0.0:8334',
-        '--workers',
-        '3',
-      ]
+    # remove entrypoint
+    command: []
 
   nginx:
     image: nginx:latest
