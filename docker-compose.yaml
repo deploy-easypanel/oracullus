@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   db:
-    image: postgres:15
+    image: postgres:17
     container_name: oracullus_db
     environment:
       POSTGRES_USER: postgres
@@ -24,7 +24,7 @@ services:
       - '8334'
     volumes:
       - .:/app
-    entrypoint: ['/entrypoint.sh']
+    entrypoint: ['/app/entrypoint.sh']
     command:
       [
         'gunicorn',
