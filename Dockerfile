@@ -11,7 +11,7 @@ RUN apt-get update && \
 # Define diretório de trabalho
 WORKDIR /app
 
-# Copia dependências primeiro (para cache eficiente)
+# Copia dependências primeiro (cache eficiente)
 COPY requirements.txt .
 
 # Instala dependências Python
@@ -21,12 +21,14 @@ RUN pip install --no-cache-dir -r requirements.txt \
 # Copia o projeto
 COPY . .
 
+# Variável de ambiente (produção)
+ENV DJANGO_SETTINGS_MODULE=setup.settings.production
+
+# Coleta os arquivos estáticos no build
+RUN python manage.py collectstatic --noinput
+
 # Exponha a porta usada pelo Gunicorn
 EXPOSE 8334
 
-# Variável de ambiente para usar settings de produção
-ENV DJANGO_SETTINGS_MODULE=setup.settings.production
-
 # Comando padrão para rodar com Gunicorn
-# (substitua "setup" pelo nome do seu projeto onde fica o wsgi.py)
 CMD ["gunicorn", "setup.wsgi:application", "--bind", "0.0.0.0:8334", "--workers", "3"]
