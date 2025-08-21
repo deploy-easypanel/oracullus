@@ -21,12 +21,6 @@ RUN pip install --no-cache-dir -r requirements.txt \
 # Copia o projeto
 COPY . .
 
-# Variável de ambiente (produção)
-ENV DJANGO_SETTINGS_MODULE=setup.settings.production
-
-# Coleta os arquivos estáticos no build
-RUN python manage.py collectstatic --noinput
-
 # Exponha a porta usada pelo Gunicorn
 EXPOSE 8334
 
