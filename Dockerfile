@@ -1,28 +1,23 @@
 # Imagem base com Python
 FROM python:3.11-slim
 
-# Instala dependências do sistema
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        git build-essential libfreetype6-dev \
-        libpq-dev curl && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y git build-essential libfreetype6-dev
 
 # Define diretório de trabalho
 WORKDIR /app
 
-# Copia dependências primeiro (cache eficiente)
+# Copia dependências
 COPY requirements.txt .
 
-# Instala dependências Python
-RUN pip install --no-cache-dir -r requirements.txt \
-    && pip install gunicorn
+# Instala dependências
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia o projeto
+# Copia todo o projeto
 COPY . .
 
-# Exponha a porta usada pelo Gunicorn
+# Expõe a porta do Django
 EXPOSE 8334
 
-# Comando padrão para rodar com Gunicorn
-CMD ["gunicorn", "setup.wsgi:application", "--bind", "0.0.0.0:8334", "--workers", "3"]
+# Comando padrão para rodar o servidor de desenvolvimento
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8334"]
