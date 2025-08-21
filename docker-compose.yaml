@@ -16,15 +16,15 @@ services:
   web:
     build: .
     container_name: oracullus_web
-    command: gunicorn setup.wsgi:application --bind 0.0.0.0:8334 --workers 3
-    volumes:
-      - .:/app
     env_file:
       - .env
     depends_on:
       - db
     expose:
       - '8334'
+    volumes:
+      - .:/app
+    command: gunicorn setup.wsgi:application --bind 0.0.0.0:8334 --workers 3
 
   nginx:
     image: nginx:latest
