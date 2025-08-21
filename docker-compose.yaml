@@ -1,9 +1,42 @@
+version: '3.9'
+
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: oracullus
+  db:
+    image: postgres:15
+    container_name: oracullus_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin-postgres
+      POSTGRES_DB: oracullus_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
-      - '8334:8334'
-    restart: unless-stopped
+      - '5434:5432'
+
+  web:
+    build: .
+    container_name: oracullus_web
+    command: gunicorn setup.wsgi:application --bind 0.0.0.0:8334 --workers 3
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - db
+    expose:
+      - '8334'
+
+  nginx:
+    image: nginx:latest
+    container_name: oracullus_nginx
+    ports:
+      - '80:80'
+    depends_on:
+      - web
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./staticfiles:/app/staticfiles
+    restart: always
+
+volumes:
+  postgres_data:
