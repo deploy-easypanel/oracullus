@@ -25,22 +25,23 @@ def process_user_message(question: str, session_id: str):
             "stream": False,
         }
 
-        # Requisição para a LLM
         response = requests.post(OLLAMA_URL, json=payload, timeout=120)
+        text = response.text.strip()
 
+        # Tenta ler como JSON completo
         try:
-            data = response.json()  # tenta decodificar JSON normalmente
+            data = json.loads(text)
         except json.JSONDecodeError:
-            # fallback: pega só a primeira linha, evitando erro "Extra data"
-            first_line = response.text.strip().split("\n")[0]
-            data = json.loads(first_line)
+            # fallback: pega só o primeiro JSON válido da resposta
+            first_brace = text.find("{")
+            last_brace = text.rfind("}") + 1
+            json_text = text[first_brace:last_brace]
+            data = json.loads(json_text)
 
-        # Extrai a resposta
         answer = "Não foi possível gerar a resposta."
         if "message" in data and "content" in data["message"]:
             answer = md_answer(data["message"]["content"])
 
-        # Salva no banco
         Message.objects.create(session=chat_session, question=question, response=answer)
 
     except requests.exceptions.Timeout:
