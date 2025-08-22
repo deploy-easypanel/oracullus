@@ -1,93 +1,74 @@
 {% extends "base.html" %}
-{% block title %}DPEBOT - Oráculo{% endblock %}
 {% load static %}
-
 {% block content %}
 <div class="flex-1 flex flex-col p-2 lg:p-4 rounded-r-lg">
-  <div
-    class="h-16 rounded-t-lg shadow-sm bg-zinc-50 dark:bg-[#212a30] px-2 lg:px-4 flex items-center justify-between"
-  >
-    <div class="flex items-center gap-2 lg:gap-3">
-      <img
-        src="{% static 'img/logo.png'%}"
-        alt="Bot"
-        class="w-8 h-8 lg:w-10 lg:h-10 rounded-full"
-      />
-      <div class="flex flex-col">
-        <h2
-          class="font-semibold text-sm lg:text-base text-[#111b21] dark:text-[#e9edef]"
-        >
-          Oráculo
-        </h2>
-      </div>
-    </div>
-    <div class="flex items-center gap-2">
-      <button
-        class="text-[#54656f] dark:text-[#aebac1] hover:bg-zinc-200 dark:hover:bg-[#374045] p-2 rounded-full"
-      >
-        <i data-lucide="settings"></i>
-      </button>
-    </div>
-  </div>
+  <!-- Cabeçalho e mensagens igual ao template que você já tinha -->
 
-  <!-- Área de mensagens (rolável) -->
-  <div
-    class="flex-1 p-2 lg:p-4 shadow-sm bg-[#efeae2] dark:bg-[#0b141a] overflow-y-auto"
-  >
-    <div class="flex flex-col gap-2">
-      <div id="message" class="p-4 space-y-4">
-        {% for message in messages %}
+  <div class="flex-1 p-2 lg:p-4 shadow-sm bg-[#efeae2] dark:bg-[#0b141a] overflow-y-auto">
+    <div class="flex flex-col gap-2" id="message-container">
+      {% for message in messages %}
         <div class="flex w-full gap-4">
-          <!-- Question (direita) -->
-          <div
-            id="question"
-            class="bg-green-200 dark:bg-green-500 p-2 rounded-lg ml-auto max-w-[70%] text-right"
-          >
+          <div class="bg-green-200 dark:bg-green-500 p-2 rounded-lg ml-auto max-w-[70%] text-right">
             {{ message.question }}
           </div>
         </div>
-
         <div class="flex w-full gap-4">
-          <!-- Response (esquerda) -->
-          <div
-            id="response"
-            class="bg-gray-200 dark:bg-gray-500 p-2 rounded-lg mr-auto max-w-[70%] text-left"
-          >
+          <div class="bg-gray-200 dark:bg-gray-500 p-2 rounded-lg mr-auto max-w-[70%] text-left">
             {{ message.response|safe }}
           </div>
         </div>
-        {% endfor %}
-      </div>
+      {% endfor %}
     </div>
   </div>
 
-  <form
-    method="POST"
-    action="{% url 'chat' %}"
-    class="h-16 rounded-b-lg shadow-lg bg-[#f0f2f5] dark:bg-[#212a30] px-2 lg:px-4 flex items-center gap-2"
-  >
+  <form method="POST" id="chat-form" class="h-16 rounded-b-lg shadow-lg flex items-center gap-2">
     {% csrf_token %}
-    <button
-      type="button"
-      class="text-[#54656f] dark:text-[#aebac1] hover:bg-zinc-200 dark:hover:bg-[#374045] p-2 rounded-full"
-    >
-      <i data-lucide="paperclip"></i>
-    </button>
-
-    <input
-      type="text"
-      name="message"
-      placeholder="Digite uma mensagem"
-      class="flex-1 text-xs lg:text-sm bg-white dark:bg-[#343f46] border border-[#d1d7db] dark:border-[#374045] rounded-lg px-3 py-2 text-[#111b21] dark:text-[#e9edef] placeholder:text-[#667781] dark:placeholder:text-[#8696a0] focus:outline-none"
-      required
-    />
-
-    <button
-      type="submit"
-      class="text-[#54656f] dark:text-[#aebac1] hover:bg-zinc-200 dark:hover:bg-[#374045] p-2 rounded-full"
-    >
-      <i data-lucide="send"></i>
-    </button>
+    <input type="hidden" name="session_id" value="{{ session_id }}">
+    <input type="text" name="message" required placeholder="Digite uma mensagem">
+    <button type="submit">Enviar</button>
   </form>
 </div>
+
+<script>
+document.getElementById("chat-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const input = e.target.querySelector("input[name='message']");
+    const session_id = e.target.querySelector("input[name='session_id']").value;
+    const message = input.value;
+    input.value = "";
+
+    await fetch("{% url 'chat' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({ message, session_id })
+    });
+
+    updateMessages(session_id);
+});
+
+async function updateMessages(session_id) {
+    const res = await fetch(`/chat/json/${session_id}/`);
+    const data = await res.json();
+    const container = document.getElementById("message-container");
+    container.innerHTML = "";
+    data.messages.forEach(msg => {
+        container.innerHTML += `
+        <div class="flex w-full gap-4">
+            <div class="bg-green-200 dark:bg-green-500 p-2 rounded-lg ml-auto max-w-[70%] text-right">
+                ${msg.question}
+            </div>
+        </div>
+        <div class="flex w-full gap-4">
+            <div class="bg-gray-200 dark:bg-gray-500 p-2 rounded-lg mr-auto max-w-[70%] text-left">
+                ${msg.response}
+            </div>
+        </div>
+        `;
+    });
+    container.scrollTop = container.scrollHeight;
+}
+</script>
 {% endblock %}

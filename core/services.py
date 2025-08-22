@@ -1,6 +1,3 @@
-import uuid
-from threading import Thread
-
 import requests
 from decouple import config
 
@@ -13,11 +10,9 @@ OLLAMA_URL = config("OLLAMA_URL")
 MODEL_NAME = config("MODEL_NAME")
 
 
-def background_process_user_message(question: str):
+def process_user_message(question: str, session_id: str):
     try:
-        chat_session, _ = ChatSession.objects.get_or_create(
-            defaults={"id": uuid.uuid4()},
-        )
+        chat_session = ChatSession.objects.get(id=session_id)
 
         payload = {
             "model": MODEL_NAME,
@@ -35,25 +30,11 @@ def background_process_user_message(question: str):
         if "message" in data and "content" in data["message"]:
             answer = md_answer(data["message"]["content"])
 
-        Message.objects.create(question=question, response=answer, session=chat_session)
+        Message.objects.create(session=chat_session, question=question, response=answer)
 
     except Exception as e:
         Message.objects.create(
+            session=chat_session,
             question=question,
             response=f"Erro ao processar a LLM: {str(e)}",
-            session=chat_session,
         )
-
-
-def process_user_message_async(question: str):
-    # Salva a pergunta imediatamente com resposta vazia
-    chat_session, _ = ChatSession.objects.get_or_create(
-        defaults={"id": uuid.uuid4()},
-    )
-    Message.objects.create(
-        question=question, response="Processando...", session=chat_session
-    )
-
-    # Executa a LLM em background
-    thread = Thread(target=background_process_user_message, args=(question,))
-    thread.start()
