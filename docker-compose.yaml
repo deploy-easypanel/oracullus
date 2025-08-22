@@ -1,43 +1,9 @@
-version: '3.9'
-
 services:
-  db:
-    image: postgres:17
-    container_name: oracullus_db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: admin-postgres
-      POSTGRES_DB: oracullus_db
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: oracullus
     ports:
-      - '5434:5432'
-
-  web:
-    build: .
-    container_name: oracullus_web
-    env_file:
-      - .env
-    depends_on:
-      - db
-    expose:
-      - '8334'
-    volumes:
-      - .:/app
-    # remove entrypoint
-    command: []
-
-  nginx:
-    image: nginx:latest
-    container_name: oracullus_nginx
-    ports:
-      - '80:80'
-    depends_on:
-      - web
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./staticfiles:/app/staticfiles
-    restart: always
-
-volumes:
-  postgres_data:
+      - '8334:8334'
+    restart: unless-stopped
