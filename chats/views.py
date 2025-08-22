@@ -10,9 +10,10 @@ from .models import Message
 
 def background_process(question):
     try:
-        resposta = process_user_message(question)
-        Message.objects.create(user="LLM", content=resposta)
+        # Chama a função que já salva a resposta no banco
+        process_user_message(question)
     except Exception as e:
+        # Se der erro, salva mensagem de erro no banco
         Message.objects.create(user="LLM", content=f"Erro: {str(e)}")
 
 
@@ -28,10 +29,10 @@ class ChatView(View):
 
     def post(self, request):
         question = request.POST.get("message")
-        # Salva a pergunta imediatamente
-        Message.objects.create(user="Você", content=question)
-        # Processa a LLM em background
-        thread = Thread(target=background_process, args=(question,))
-        thread.start()
-        # Retorna imediatamente
+        if question:
+            # Salva pergunta imediatamente com placeholder
+            Message.objects.create(user="Você", content=question)
+            # Processa a LLM em background
+            thread = Thread(target=background_process, args=(question,))
+            thread.start()
         return redirect("chat")
