@@ -1,5 +1,5 @@
 services:
-  web:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
@@ -7,15 +7,3 @@ services:
     ports:
       - '8334:8334'
     restart: unless-stopped
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: admin-postgres
-      POSTGRES_DB: oracullus_db
-      DB_HOST: db
-      DB_PORT: 5432
-    networks:
-      - oracullus_net
-
-networks:
-  oracullus_net:
-    external: true

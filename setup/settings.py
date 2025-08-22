@@ -9,9 +9,25 @@ SECRET_KEY = config("SECRET_KEY")
 
 DEBUG = config("DEBUG", cast=bool, default=False)
 
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
+ALLOWED_HOSTS = [
+    "oracullus.saulojustiniano.site",
+    "www.oracullus.saulojustiniano.site",
+]
 
-# CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", cast=Csv())
+# CSRF
+CSRF_TRUSTED_ORIGINS = [
+    "https://oracullus.saulojustiniano.site",
+    "https://www.oracullus.saulojustiniano.site",
+]
+
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
+CSRF_USE_SESSIONS = False  # use cookie padrão
+
+# Sessões
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 DJANGO_APPS = [
     "django.contrib.admin",
