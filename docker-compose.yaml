@@ -1,9 +1,11 @@
 services:
-  app:
+  web:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: oracullus
+    container_name: oracullus_web
     ports:
       - '8334:8334'
     restart: unless-stopped
+    depends_on:
+      - db
