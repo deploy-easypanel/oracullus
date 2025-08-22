@@ -7,5 +7,9 @@ services:
     ports:
       - '8334:8334'
     restart: unless-stopped
-    depends_on:
-      - db
+    networks:
+      - oracullus_net
+
+networks:
+  oracullus_net:
+    external: true
