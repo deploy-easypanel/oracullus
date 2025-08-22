@@ -1,24 +1,9 @@
-version: '3.9'
-
 services:
-  web:
-    build: .
-    container_name: oracullus_web
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: oracullus
     ports:
       - '8334:8334'
-    depends_on: []
-
-  db:
-    image: postgres:17
-    container_name: oracullus_db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: admin-postgres
-      POSTGRES_DB: oracullus_db
-    ports:
-      - '5434:5432'
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
+    restart: unless-stopped
